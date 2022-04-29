@@ -399,19 +399,28 @@ The theme has some default tags but an **Admin** or **Creator** user can manage 
 
 On the page for adding a new category you will find a form which allows you to fill the name and the description of the new tag and on the edit page you will find a similar form for the changes you wish to make.
 
-The `/resources/views/livewire/laravel-examples/edit-tag.blade.php` is the blade template for editing a tag:
+The `App/Http/Controllers/TagsController.php` takes care of data validation and creation of a the new tag or deleting an existing one.
 
 ```
-    <div>
-        <label class="mt-4">{{ __('Tag Description') }}</label>
-        <div class="@error('tag.color') has-danger @enderror">
-            <input wire:model="tag.color" type="color" name="color" id="input-name"
-                    class="form-control @error('tag.color') is-invalid @enderror" placeholder="Color"
-                    value="{{ old('color') }}" required>
-        </div>
-        @error('tag.color') <div class="text-danger text-xs">{{ $message }}</div>@enderror
-    </div>
+   public function store(Request $request)
+   {
+        $name = $request->input('tagName');
+        $color = $request->input('color');
+        DB::table('tags')
+             ->insert(['name' => $name, 'description'=> $color, 'created_at' => now(), 'updated_at' => now()]);
+        return redirect('/laravel-tags-management');
+   }
 ```
+
+For deleting an item is necessary to remove the association between item and tags. The `App\Http\Controllers\TagsController.php` handles the deletion of an item:
+
+```
+    public function destroy($id)
+    {
+         DB::table('tags')->where('id', $id)->delete();
+         return redirect('/laravel-tags-management');
+    }
+ ```
 
 ### Item Management
 Item Management is the most advanced example included in the PRO theme because every item has a picture, has a category and has multiple tags. The item management can be accessed by clicking "**Item Managmenet**" from the **Laravel Examples** section of the sidebar or by adding "**/laravel-items-management** in the url. The authenticated user as an Admin or Creator can **add**, **edit** and **delete** items. For adding a new item you can press the "**+ New Item**" button or add in the url "**/laravel-new-item**". If you would like to edit or delete an item you can click on the **Action** column. It is also possible to sort the fields or to search in the fields. The Member user can not take any actions on the item, he is only able to see the item management table.
